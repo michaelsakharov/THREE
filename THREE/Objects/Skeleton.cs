@@ -30,29 +30,51 @@ namespace THREE.Objects
 
         public int Frame = -1;
 
-        public Skeleton(Bone[] bones, Matrix4[] boneInverses = null)
+        public Skeleton(Bone[] bones, Matrix4[] boneInverses = null, bool useVertexTexture = false)
         {
+            this.UseVertexTexture = useVertexTexture;
+
             this.Bones = bones;
-            BoneMatrices = new float[bones.Length * 16];
             if (boneInverses != null)
             {
                 CalculateInverses();
             }
             else
             {
-                //if (this.Bones.Length == boneInverses.Length)
-                //{
-                //    Array.Copy(boneInverses, 0, this.BoneInverses, 0, boneInverses.Length);
-                //}
-                //else
-                //{
-                    this.BoneInverses = new Matrix4[this.Bones.Length];
-                    int bCount = 0;
+                this.BoneInverses = new Matrix4[this.Bones.Length];
+                if (this.Bones.Length == boneInverses.Length)
+                {
+                    Array.Copy(boneInverses, 0, this.BoneInverses, 0, boneInverses.Length);
+                }
+                else
+                {
                     for (int i = 0; i < this.Bones.Length; i++)
                     {
-                        this.BoneInverses[bCount++] = new Matrix4();
+                        this.BoneInverses[i] = new Matrix4();
                     }
-                //}
+                }
+            }
+
+            if (this.UseVertexTexture)
+            {
+                int size;
+                if (this.Bones.Length > 256)
+                    size = 64;
+                else if (this.Bones.Length > 64)
+                    size = 32;
+                else if (this.Bones.Length > 16)
+                    size = 16;
+                else
+                    size = 8;
+
+                BoneTextureWidth = size;
+                BoneTextureHeight = size;
+
+                BoneMatrices = new float[BoneTextureWidth * BoneTextureHeight * 4];
+            }
+            else
+            {
+                BoneMatrices = new float[bones.Length * 16];
             }
         }
 
@@ -116,7 +138,7 @@ namespace THREE.Objects
                 offsetMatrix.MultiplyMatrices(matrix, BoneInverses[i]);
                 offsetMatrix.ToArray(BoneMatrices, i * 16);
             }
-            if (BoneTexture != null)
+            if (UseVertexTexture && BoneTexture != null)
             {
                 BoneTexture.NeedsUpdate = true;
             }

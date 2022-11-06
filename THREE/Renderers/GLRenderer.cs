@@ -1551,7 +1551,7 @@ namespace THREE.Renderers
 
 				    var bones = skeleton.Bones;
 
-				    if ( capabilities.floatVertexTextures) {
+				    if (capabilities.floatVertexTextures && skeleton.UseVertexTexture) {
 
 					    if ( skeleton.BoneTexture !=null ) {
 
@@ -1589,7 +1589,7 @@ namespace THREE.Renderers
 
 					    p_uniforms.SetOptional(skeleton, "boneMatrices" );
 
-				    }
+                    }
 
 			    }
             }
